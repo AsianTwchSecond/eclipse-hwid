@@ -1,20 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Login</h2>
+<div class="card">
+    <h2 style="text-align:center;">Eclipse Panel Login</h2>
 
-<form method="post">
-    <label>Username</label>
-    <input name="username" required>
+    <form method="POST">
+        <label>Username</label>
+        <input type="text" name="username" required>
 
-    <label>Password</label>
-    <input name="password" type="password" required>
+        <label>Password</label>
+        <input type="password" name="password" required>
 
-    <button type="submit">Login</button>
-</form>
+        {% if error %}
+        <p style="color:red; margin-top:10px;">{{ error }}</p>
+        {% endif %}
 
-{% if error %}
-<p style="color:red;">{{ error }}</p>
-{% endif %}
+        <button type="submit">Login</button>
+    </form>
+</div>
 
 {% endblock %}
