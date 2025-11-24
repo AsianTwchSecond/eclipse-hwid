@@ -1,87 +1,68 @@
-/* AUTHGUARD UI THEME */
-
-/* Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #0d0f16, #161b29);
-    color: #fff;
-}
-
-/* Sidebar */
-.sidebar {
-    width: 260px;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    background: rgba(14, 17, 25, 0.65);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-    padding-top: 20px;
-}
-
-.sidebar h2 {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 30px;
-    opacity: 0.9;
-}
-
-.sidebar a {
-    display: block;
-    padding: 14px 25px;
-    font-size: 16px;
-    text-decoration: none;
-    color: #b7c0d1;
-    transition: 0.2s;
-    border-radius: 8px;
-    margin: 4px;
-}
-
-.sidebar a:hover,
-.sidebar a.active {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-}
-
-/* Page content */
-.content {
-    margin-left: 260px;
-    padding: 40px;
-}
-
-.card {
-    background: rgba(255, 255, 255, 0.06);
-    padding: 25px;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    margin-bottom: 20px;
-}
-
-input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.08);
+    background: #0d0d0d;
     color: white;
+    font-family: Arial;
 }
 
-button {
-    padding: 10px 15px;
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-box {
+    background: #111;
+    padding: 30px;
+    width: 320px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0px 0px 12px #000;
+}
+
+.login-box input {
+    width: 90%;
+    padding: 10px;
+    margin: 8px 0;
     border-radius: 8px;
-    background: #3b82f6;
     border: none;
+}
+
+.login-box button {
+    width: 90%;
+    padding: 12px;
+    background: #4f46e5;
+    border: none;
+    border-radius: 8px;
     color: white;
     cursor: pointer;
-    font-weight: 600;
 }
 
-button:hover {
-    background: #2563eb;
+.nav {
+    background: #111;
+    padding: 15px;
+}
+
+.nav a {
+    color: white;
+    margin-right: 20px;
+    text-decoration: none;
+}
+
+.content {
+    padding: 20px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table td, .table th {
+    border-bottom: 1px solid #444;
+    padding: 10px;
+}
+
+.delete {
+    color: red;
 }
