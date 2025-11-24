@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/luarmor.css">
+    <title>Eclipse Panel Login</title>
+</head>
+<body>
+<div class="center-box">
+    <h1 class="title">Eclipse Panel</h1>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <input class="input" type="text" name="username" placeholder="Username"><br>
+        <input class="input" type="password" name="password" placeholder="Password"><br>
+        <button class="btn">Login</button>
+    </form>
+</div>
+</body>
+</html>
