@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/luarmor.css">
+</head>
+<body>
+<div class="topbar">Blacklist</div>
+
+<div class="container">
+
+<form method="POST" action="/blackadd">
+    <input class="input" name="hwid" placeholder="HWID">
+    <button class="btn">Add</button>
+</form>
+
+<h3>Blacklisted HWIDs:</h3>
+
+{% for h, _ in black.items() %}
+<div class="keybox">
+    <p>{{ h }}</p>
+    <a class="delete" href="/blackremove/{{ h }}">Remove</a>
+</div>
+{% endfor %}
+
+</div>
+</body>
+</html>
