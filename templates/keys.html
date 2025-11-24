@@ -1,31 +1,81 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 {% block content %}
-<h1>Key Management</h1>
 
-<div class="card">
-    <form method="post" action="/generate">
-        <label>Days</label>
-        <input type="number" name="days">
+<h2 class="text-3xl font-bold mb-4">Key Manager</h2>
 
-        <label>Amount</label>
-        <input type="number" name="amount">
+<!-- Generate New Keys -->
+<div class="bg-[#1a1a1d] p-4 rounded-xl shadow-xl mb-6">
+    <form method="post" action="/generate" class="space-y-3">
 
-        <button type="submit">Generate</button>
+        <label>Days:</label>
+        <input class="bg-[#0e0e10] p-2 rounded w-full" type="number" name="days" required>
+
+        <label>Amount:</label>
+        <input class="bg-[#0e0e10] p-2 rounded w-full" type="number" name="amount" required>
+
+        <button class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 w-full mt-2">
+            Generate Keys
+        </button>
     </form>
 </div>
 
-<div class="card">
-    <h3>Existing Keys</h3>
-    <table>
-        <tr><th>Key</th><th>Expires</th><th>HWID</th><th></th></tr>
-        {% for key, info in keys.items() %}
-        <tr>
-            <td>{{ key }}</td>
-            <td>{{ info.expires }}</td>
-            <td>{{ info.hwid }}</td>
-            <td><a href="/deletekey/{{key}}">Delete</a></td>
+
+<!-- Newly Generated Keys -->
+{% if new_keys %}
+<div class="bg-[#1a1a1d] p-4 rounded-xl shadow-xl mb-6">
+    <h3 class="text-xl mb-2">New Keys</h3>
+    <ul class="space-y-1">
+        {% for k in new_keys %}
+        <li class="flex justify-between bg-[#0e0e10] p-2 rounded">
+            <span>{{ k }}</span>
+
+            <!-- COPY SCRIPT BUTTON -->
+            <button 
+                class="bg-green-600 px-3 py-1 rounded hover:bg-green-700"
+                onclick='copyScript("{{ k }}")'>
+                Copy Script
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+
+<!-- Existing Keys Table -->
+<div class="bg-[#1a1a1d] p-4 rounded-xl shadow-xl">
+    <h3 class="text-xl mb-4">Key List</h3>
+
+    <table class="w-full text-left">
+        <tr class="text-gray-400 border-b border-gray-700">
+            <th class="p-2">Key</th>
+            <th class="p-2">Expires</th>
+            <th class="p-2">HWID</th>
+            <th class="p-2">Action</th>
+        </tr>
+
+        {% for key, data in keys.items() %}
+        <tr class="border-b border-gray-800">
+            <td class="p-2">{{ key }}</td>
+            <td class="p-2">{{ data.expires }}</td>
+            <td class="p-2">{{ data.hwid }}</td>
+            <td class="p-2">
+                <a href="/deletekey/{{ key }}" class="text-red-400 hover:text-red-600">Delete</a>
+            </td>
         </tr>
         {% endfor %}
     </table>
 </div>
+
+<!-- Copy Script Logic -->
+<script>
+function copyScript(key) {
+    let script = `_G.Key = "${key}"\nloadstring(game:HttpGet("https://raw.githubusercontent.com/FwtysLuas/EclipseMeteor/refs/heads/main/Protected_4548462735082467.lua.txt"))()`;
+
+    navigator.clipboard.writeText(script);
+
+    alert("Copied Script With Key!");
+}
+</script>
+
 {% endblock %}
