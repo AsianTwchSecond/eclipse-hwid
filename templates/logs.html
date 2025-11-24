@@ -1,26 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Logs</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-
-<body>
-
-<div class="nav">
-    <a href="/dashboard">Dashboard</a>
-    <a href="/keys">Keys</a>
-    <a href="/blacklist">Blacklist</a>
-    <a href="/logs">Logs</a>
-</div>
-
-<div class="content">
-    <h2>Panel Logs</h2>
-
-    <pre class="logs-box">
-{{ logs }}
-    </pre>
-</div>
-
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<h2>System Logs</h2>
+<pre>{{ logs }}</pre>
+{% endblock %}
