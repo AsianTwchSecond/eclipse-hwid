@@ -1,64 +1,32 @@
-{% extends "base.html" %}
-{% block content %}
-
-<div class="card">
-    <h2>Generate Keys</h2>
-
-    <form method="POST" action="/generate">
-        <label>Days</label>
-        <input type="number" name="days" required>
-
-        <label>Amount</label>
-        <input type="number" name="amount" required>
-
-        <button type="submit">Generate</button>
-    </form>
-</div>
-
-{% if new_keys %}
-<div class="card">
-    <h3>New Keys</h3>
-    {% for k in new_keys %}
-    <p>{{ k }}</p>
-    {% endfor %}
-</div>
-{% endif %}
-
-<div class="card">
-    <h2>All Keys</h2>
-
-    <ul style="list-style:none; padding-left:0;">
-        {% for key, data in keys.items() %}
-        <li style="margin-bottom:15px;">
-
-            <b>{{ key }}</b>  
-            <br>
-            Expires: {{ data.expires }}  
-            <br>
-            HWID: {{ data.hwid }}
-
-            <br><br>
-
-            <!-- Copy Script Button -->
-            <button onclick="copyScript('{{ key }}')">Copy Script</button>
-
-            <a href="/deletekey/{{ key }}">
-                <button style="background:#ff4c4c; margin-top:10px;">Delete</button>
-            </a>
-
-        </li>
-        {% endfor %}
-    </ul>
-</div>
+<!-- Copy Script Button -->
+<button class="copy-btn" onclick="copyScript('{{ key }}')">Copy Script</button>
 
 <script>
 function copyScript(key) {
-    let script = `_G.Key = "${key}"
-loadstring(game:HttpGet("https://raw.githubusercontent.com/FwtysLuas/EclipseMeteor/refs/heads/main/Protected_8387035221277894.lua.txt"))()`
+    const script = `
+_G.Key = "${key}"
+loadstring(game:HttpGet("https://raw.githubusercontent.com/FwtysLuas/EclipseMeteor/refs/heads/main/Protected_8387035221277894.lua.txt"))()
+    `;
 
-    navigator.clipboard.writeText(script);
-    alert("Copied script with key!");
+    navigator.clipboard.writeText(script).then(() => {
+        alert("Copied script to clipboard!");
+    });
 }
 </script>
 
-{% endblock %}
+<style>
+/* Mobile friendly */
+.copy-btn {
+    padding: 10px 15px;
+    margin-top: 5px;
+    width: 100%;
+    background: #202020;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+}
+.copy-btn:active {
+    opacity: 0.6;
+}
+</style>
