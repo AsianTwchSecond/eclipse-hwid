@@ -1,91 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="/static/style.css">
-    <title>Eclipse Login</title>
-    <style>
-        body {
-            background: url("https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1950&q=80") no-repeat center center fixed;
-            background-size: cover;
-        }
+{% extends "base.html" %}
+{% block content %}
 
-        .center-card {
-            width: 90%;
-            max-width: 420px;
-            margin: 100px auto;
-            padding: 35px;
-            background: rgba(18, 22, 33, 0.88);
-            border-radius: 20px;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            color: white;
-        }
+<h2>Login</h2>
 
-        .center-card h2 {
-            text-align: center;
-            margin-bottom: 25px;
-        }
+<form method="post">
+    <label>Username</label>
+    <input name="username" required>
 
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            opacity: 0.8;
-        }
+    <label>Password</label>
+    <input name="password" type="password" required>
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-            margin-bottom: 15px;
-        }
+    <button type="submit">Login</button>
+</form>
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(90deg, #3b82f6, #2563eb);
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+{% if error %}
+<p style="color:red;">{{ error }}</p>
+{% endif %}
 
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .error {
-            text-align: center;
-            color: #ff6b6b;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="center-card">
-    <h2>Login to Eclipse</h2>
-
-    {% if error %}
-    <p class="error">{{ error }}</p>
-    {% endif %}
-
-    <form method="POST">
-        <label>Username</label>
-        <input type="text" name="username" placeholder="Enter Username">
-
-        <label>Password</label>
-        <input type="password" name="password" placeholder="Enter Password">
-
-        <button type="submit">LOGIN</button>
-    </form>
-</div>
-
-</body>
-</html>
+{% endblock %}
