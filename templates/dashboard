@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/luarmor.css">
+</head>
+<body>
+<div class="topbar">Eclipse Panel</div>
+
+<div class="container">
+    <a href="/keys" class="card">Keys</a>
+    <a href="/blacklist" class="card">Blacklist</a>
+    <a href="/logs" class="card">Logs</a>
+</div>
+
+</body>
+</html>
