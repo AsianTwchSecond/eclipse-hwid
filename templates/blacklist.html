@@ -1,43 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Blacklist</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
+{% extends "base.html" %}
+{% block content %}
 
-<body>
+<h2>Blacklist</h2>
 
-<div class="nav">
-    <a href="/dashboard">Dashboard</a>
-    <a href="/keys">Keys</a>
-    <a href="/blacklist">Blacklist</a>
-    <a href="/logs">Logs</a>
-</div>
+<form method="post" action="/addblacklist">
+    <input name="hwid" placeholder="HWID" required>
+    <button type="submit">Add HWID</button>
+</form>
 
-<div class="content">
-    <h2>Blacklist HWID</h2>
+<table>
+<tr><th>HWID</th><th>Action</th></tr>
+{% for hwid, v in black.items() %}
+<tr>
+    <td>{{ hwid }}</td>
+    <td><a href="/removeblacklist/{{ hwid }}">Remove</a></td>
+</tr>
+{% endfor %}
+</table>
 
-    <form method="POST" action="/addblacklist">
-        <input type="text" name="hwid" placeholder="HWID" required>
-        <button type="submit">Add</button>
-    </form>
-
-    <h2>Blacklisted HWIDs</h2>
-
-    <table class="table">
-        <tr>
-            <th>HWID</th>
-            <th>Remove</th>
-        </tr>
-
-        {% for hwid in black %}
-        <tr>
-            <td>{{ hwid }}</td>
-            <td><a class="delete" href="/removeblacklist/{{ hwid }}">Remove</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-
-</body>
-</html>
+{% endblock %}
