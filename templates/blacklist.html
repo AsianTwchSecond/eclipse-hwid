@@ -1,21 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Blacklist</h2>
+<div class="card">
+    <h2>Blacklist HWID</h2>
 
-<form method="post" action="/addblacklist">
-    <input name="hwid" placeholder="HWID" required>
-    <button type="submit">Add HWID</button>
-</form>
+    <form method="POST" action="/addblacklist">
+        <label>HWID</label>
+        <input name="hwid" required>
 
-<table>
-<tr><th>HWID</th><th>Action</th></tr>
-{% for hwid, v in black.items() %}
-<tr>
-    <td>{{ hwid }}</td>
-    <td><a href="/removeblacklist/{{ hwid }}">Remove</a></td>
-</tr>
-{% endfor %}
-</table>
+        <button type="submit">Blacklist</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Blacklisted</h2>
+
+    {% for hwid, val in black.items() %}
+    <p>{{ hwid }}
+       <a href="/removeblacklist/{{ hwid }}">
+           <button style="background:#ff4c4c; margin-top:10px;">Remove</button>
+       </a>
+    </p>
+    {% endfor %}
+</div>
 
 {% endblock %}
