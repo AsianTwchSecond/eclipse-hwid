@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/luarmor.css">
+</head>
+<body>
+<div class="topbar">Keys</div>
+
+<div class="container">
+
+<form method="POST" action="/generate">
+    <input class="input" type="number" name="days" placeholder="Days">
+    <input class="input" type="number" name="amount" placeholder="Amount">
+    <button class="btn">Generate</button>
+</form>
+
+{% if new_keys %}
+<h3>New Keys:</h3>
+{% for k in new_keys %}
+<p class="key">{{ k }}</p>
+{% endfor %}
+{% endif %}
+
+<hr>
+
+<h3>Existing Keys:</h3>
+{% for k, data in keys.items() %}
+<div class="keybox">
+    <p>{{ k }}</p>
+    <a class="delete" href="/delete/{{ k }}">Delete</a>
+</div>
+{% endfor %}
+
+</div>
+</body>
+</html>
