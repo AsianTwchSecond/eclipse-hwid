@@ -1,85 +1,60 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Eclipse | Get Script</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
+{% block content %}
 
-    <style>
-        body {
-            background: #0d0d0d;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
+<div class="card">
+    <h2>Generate Keys</h2>
 
-        .box {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 10px;
-            max-width: 500px;
-            margin: auto;
-            box-shadow: 0 0 10px rgba(255,255,255,0.1);
-        }
+    <form method="POST" action="/generate">
+        <label>Days</label>
+        <input type="number" name="days" required>
 
-        textarea {
-            width: 100%;
-            height: 140px;
-            background: #111;
-            color: #00ffea;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-size: 14px;
-        }
+        <label>Amount</label>
+        <input type="number" name="amount" required>
 
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            background: #3f3fff;
-            border: none;
-            color: white;
-            font-size: 16px;
-            border-radius: 8px;
-        }
-    </style>
-</head>
+        <button type="submit">Generate</button>
+    </form>
+</div>
 
-<body>
+{% if new_keys %}
+<div class="card">
+    <h3>New Keys</h3>
+    {% for k in new_keys %}
+    <p>{{ k }}</p>
+    {% endfor %}
+</div>
+{% endif %}
 
-    <h2>Eclipse | Script Loader</h2>
+<div class="card">
+    <h2>All Keys</h2>
 
-    <div class="box">
-        <p>Your script is ready!</p>
+    <ul style="list-style:none; padding-left:0;">
+        {% for key, data in keys.items() %}
+        <li style="margin-bottom:20px;">
 
-        <textarea id="scriptBox" readonly></textarea>
+            <b>Key:</b> {{ key }}<br>
+            <b>Expires:</b> {{ data.expires }}<br>
+            <b>HWID:</b> {{ data.hwid if data.hwid else "None (Not Used Yet)" }}<br><br>
 
-        <button onclick="copyScript()">Copy Script</button>
-    </div>
+            <!-- Copy Script Button -->
+            <button onclick="copyScript('{{ key }}')">Copy Script</button>
 
-    <script>
-        // Fetch KEY passed from Python backend
-        const urlParams = new URLSearchParams(window.location.search);
-        const key = urlParams.get("key") || "NO_KEY_FOUND";
+            <a href="/deletekey/{{ key }}">
+                <button style="background:#ff4c4c; margin-top:10px;">Delete</button>
+            </a>
 
-        // Your UPDATED script URL
-        const SCRIPT_URL = "https://raw.githubusercontent.com/FwtysLuas/EclipseMeteor/refs/heads/main/Protected_8387035221277894.lua.txt";
+        </li>
+        {% endfor %}
+    </ul>
+</div>
 
-        // Auto-generated script
-        const content =
-`_G.Key = "${key}"
-loadstring(game:HttpGet("${SCRIPT_URL}"))()`;
+<script>
+function copyScript(key) {
+    let script = `_G.Key = "${key}"
+loadstring(game:HttpGet("https://raw.githubusercontent.com/FwtysLuas/EclipseMeteor/refs/heads/main/Protected_8387035221277894.lua.txt"))()`
 
-        document.getElementById("scriptBox").value = content;
+    navigator.clipboard.writeText(script);
+    alert("Copied script with key!");
+}
+</script>
 
-        function copyScript() {
-            navigator.clipboard.writeText(content);
-            alert("Copied!");
-        }
-    </script>
-
-</body>
-</html>
+{% endblock %}
