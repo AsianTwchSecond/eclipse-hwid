@@ -1,0 +1,87 @@
+/* AUTHGUARD UI THEME */
+
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #0d0f16, #161b29);
+    color: #fff;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: rgba(14, 17, 25, 0.65);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 20px;
+}
+
+.sidebar h2 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.sidebar a {
+    display: block;
+    padding: 14px 25px;
+    font-size: 16px;
+    text-decoration: none;
+    color: #b7c0d1;
+    transition: 0.2s;
+    border-radius: 8px;
+    margin: 4px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+/* Page content */
+.content {
+    margin-left: 260px;
+    padding: 40px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.06);
+    padding: 25px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 20px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+
+button {
+    padding: 10px 15px;
+    border-radius: 8px;
+    background: #3b82f6;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover {
+    background: #2563eb;
+}
