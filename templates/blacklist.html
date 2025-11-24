@@ -1,27 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="/static/luarmor.css">
+    <title>Blacklist</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
-<div class="topbar">Blacklist</div>
 
-<div class="container">
-
-<form method="POST" action="/blackadd">
-    <input class="input" name="hwid" placeholder="HWID">
-    <button class="btn">Add</button>
-</form>
-
-<h3>Blacklisted HWIDs:</h3>
-
-{% for h, _ in black.items() %}
-<div class="keybox">
-    <p>{{ h }}</p>
-    <a class="delete" href="/blackremove/{{ h }}">Remove</a>
+<div class="nav">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/keys">Keys</a>
+    <a href="/blacklist">Blacklist</a>
+    <a href="/logs">Logs</a>
 </div>
-{% endfor %}
 
+<div class="content">
+    <h2>Blacklist HWID</h2>
+
+    <form method="POST" action="/addblacklist">
+        <input type="text" name="hwid" placeholder="HWID" required>
+        <button type="submit">Add</button>
+    </form>
+
+    <h2>Blacklisted HWIDs</h2>
+
+    <table class="table">
+        <tr>
+            <th>HWID</th>
+            <th>Remove</th>
+        </tr>
+
+        {% for hwid in black %}
+        <tr>
+            <td>{{ hwid }}</td>
+            <td><a class="delete" href="/removeblacklist/{{ hwid }}">Remove</a></td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
+
 </body>
 </html>
