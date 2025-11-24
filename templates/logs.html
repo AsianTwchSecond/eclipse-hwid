@@ -1,13 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="/static/luarmor.css">
+    <title>Logs</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
 
-<div class="topbar">Logs</div>
+<div class="nav">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/keys">Keys</a>
+    <a href="/blacklist">Blacklist</a>
+    <a href="/logs">Logs</a>
+</div>
 
-<pre class="logbox">{{ logs }}</pre>
+<div class="content">
+    <h2>Panel Logs</h2>
+
+    <pre class="logs-box">
+{{ logs }}
+    </pre>
+</div>
 
 </body>
-</html> 
+</html>
