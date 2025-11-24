@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Eclipse Panel</title>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>E C L I P S E</h2>
+
+    <a href="/dashboard" class="{{ 'active' if page=='dashboard' else '' }}">Dashboard</a>
+    <a href="/keys" class="{{ 'active' if page=='keys' else '' }}">Key Management</a>
+    <a href="/storage" class="{{ 'active' if page=='storage' else '' }}">Storage</a>
+    <a href="/blacklist" class="{{ 'active' if page=='blacklist' else '' }}">Blacklist</a>
+    <a href="/logs" class="{{ 'active' if page=='logs' else '' }}">Logs</a>
+</div>
+
+<div class="content">
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>
