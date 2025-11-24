@@ -35,6 +35,7 @@
             <b>Expires:</b> {{ data.expires }}<br>
             <b>HWID:</b> {{ data.hwid if data.hwid else "None (Not Used Yet)" }}<br><br>
 
+            <!-- Copy Script Button -->
             <button onclick="copyScript('{{ key }}')">Copy Script</button>
 
             <a href="/deletekey/{{ key }}">
@@ -48,5 +49,13 @@
 
 <script>
 function copyScript(key) {
-    let script = `_G.Key = "${key}"
-loadstring(game:HttpGet("https://raw.githubusercontent.com/FwtysLuas/EclipseMeteor/refs/heads/main/Protected_838703522127
+    let script =
+`_G.Key = "${key}"
+loadstring(game:HttpGet("https://raw.githubusercontent.com/FwtysLuas/EclipseMeteor/refs/heads/main/Protected_8387035221277894.lua.txt"))()`;
+
+    navigator.clipboard.writeText(script);
+    alert("Copied script with key!");
+}
+</script>
+
+{% endblock %}
