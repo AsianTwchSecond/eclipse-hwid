@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Eclipse Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#0d0d0f] text-white">
+
+<!-- NAVBAR -->
+<nav class="bg-[#131316] p-4 shadow-xl flex gap-6 text-gray-300 text-lg">
+    <a href="/dashboard" class="hover:text-white">Dashboard</a>
+    <a href="/keys" class="hover:text-white">Keys</a>
+    <a href="/blacklist" class="hover:text-white">Blacklist</a>
+    <a href="/logs" class="hover:text-white">Logs</a>
+</nav>
+
+<div class="p-6">
+{% block content %}{% endblock %}
+</div>
+
+</body>
+</html>
