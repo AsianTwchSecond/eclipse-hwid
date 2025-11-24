@@ -2,22 +2,88 @@
 <html>
 <head>
     <title>Eclipse Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            background: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        .navbar {
+            background: #1a1a1a;
+            padding: 12px;
+            text-align: center;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            padding: 8px;
+        }
+
+        .navbar a:hover {
+            color: #8ab4ff;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .card {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            background: #4c8dff;
+            color: white;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #3375ff;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            margin-top: 10px;
+            background: #262626;
+            color: white;
+        }
+    </style>
 </head>
 
-<body class="bg-[#0d0d0f] text-white">
+<body>
 
-<!-- NAVBAR -->
-<nav class="bg-[#131316] p-4 shadow-xl flex gap-6 text-gray-300 text-lg">
-    <a href="/dashboard" class="hover:text-white">Dashboard</a>
-    <a href="/keys" class="hover:text-white">Keys</a>
-    <a href="/blacklist" class="hover:text-white">Blacklist</a>
-    <a href="/logs" class="hover:text-white">Logs</a>
-</nav>
+    {% if session.auth %}
+    <div class="navbar">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/keys">Keys</a>
+        <a href="/blacklist">Blacklist</a>
+        <a href="/logs">Logs</a>
+        <a href="/logout">Logout</a>
+    </div>
+    {% endif %}
 
-<div class="p-6">
-{% block content %}{% endblock %}
-</div>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
 
 </body>
 </html>
