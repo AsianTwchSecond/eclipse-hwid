@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="/static/luarmor.css">
-</head>
-<body>
-<div class="topbar">Eclipse Panel</div>
+{% extends "layout.html" %}
+{% block content %}
+<h1>Welcome to Eclipse HWID Panel</h1>
 
-<div class="container">
-    <a href="/keys" class="card">Keys</a>
-    <a href="/blacklist" class="card">Blacklist</a>
-    <a href="/logs" class="card">Logs</a>
+<div class="card">
+    <p>Manage keys, blacklist, logs & scripts with a clean AuthGuard-style UI.</p>
 </div>
-
-</body>
-</html>
+{% endblock %}
