@@ -1,14 +1,14 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-import os, json, time
+import os, json, time, random, string
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # CHANGE THIS LATER
+app.secret_key = "supersecretkey"
 
-# -------------------- ADMIN LOGIN --------------------
+# ADMIN
 ADMIN_USER = "EclipseOwner"
 ADMIN_PASS = "Secret123"
 
-# -------------------- DATABASE INIT --------------------
+# DB FOLDER
 if not os.path.exists("database"):
     os.makedirs("database")
 
@@ -16,158 +16,136 @@ DB_KEYS = "database/keys.json"
 DB_BLACKLIST = "database/blacklist.json"
 DB_LOGS = "database/logs.txt"
 
-# Auto-create JSON files
-for file in [DB_KEYS, DB_BLACKLIST]:
-    if not os.path.exists(file):
-        with open(file, "w") as f:
-            f.write("{}")
-
-# Auto-create logs
+# CREATE FILES IF MISSING
+if not os.path.exists(DB_KEYS):
+    open(DB_KEYS, "w").write("{}")
+if not os.path.exists(DB_BLACKLIST):
+    open(DB_BLACKLIST, "w").write("{}")
 if not os.path.exists(DB_LOGS):
-    open(DB_LOGS, "w").close()
+    open(DB_LOGS, "w").write("")
 
 
-# -------------------- JSON UTILS --------------------
 def load_json(path):
-    with open(path, "r") as f:
-        return json.load(f)
+    return json.load(open(path, "r"))
 
 def save_json(path, data):
-    with open(path, "w") as f:
-        json.dump(data, f, indent=4)
+    json.dump(data, open(path, "w"), indent=4)
 
 def log_event(text):
-    with open(DB_LOGS, "a") as f:
-        f.write(f"[{time.ctime()}] {text}\n")
+    open(DB_LOGS, "a").write(f"[{time.ctime()}] {text}\n")
 
 
-# -------------------- LOGIN PAGE --------------------
+# ---------------- LOGIN ---------------- #
+
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        user = request.form.get("username")
-        pw = request.form.get("password")
+        u = request.form.get("username")
+        p = request.form.get("password")
 
-        if user == ADMIN_USER and pw == ADMIN_PASS:
+        if u == ADMIN_USER and p == ADMIN_PASS:
             session["auth"] = True
             return redirect("/dashboard")
 
-        return render_template("login.html", error="Invalid login!")
+        return render_template("login.html", error="Invalid credentials")
 
     return render_template("login.html")
 
 
-def require_auth():
-    return session.get("auth", False)
+def authed():
+    return session.get("auth") == True
 
 
-# -------------------- DASHBOARD --------------------
+# ---------------- DASHBOARD ---------------- #
+
 @app.route("/dashboard")
 def dashboard():
-    if not require_auth():
-        return redirect("/")
+    if not authed(): return redirect("/")
     return render_template("dashboard.html")
 
 
-# -------------------- KEYS PAGE --------------------
-@app.route("/keys")
-def keys_page():
-    if not require_auth():
-        return redirect("/")
+# ---------------- KEY MANAGER ---------------- #
 
-    keys = load_json(DB_KEYS)
-    return render_template("keys.html", keys=keys)
+@app.route("/keys")
+def keys():
+    if not authed(): return redirect("/")
+    return render_template("keys.html", keys=load_json(DB_KEYS))
 
 
 @app.route("/generate", methods=["POST"])
 def generate():
-    if not require_auth():
-        return redirect("/")
+    if not authed(): return redirect("/")
 
     days = int(request.form.get("days"))
     amount = int(request.form.get("amount"))
 
-    keys = load_json(DB_KEYS)
-    expire = int(time.time()) + days * 86400
-
-    import random, string
+    expire = int(time.time()) + (days * 86400)
+    db = load_json(DB_KEYS)
 
     new_keys = []
+
     for _ in range(amount):
-        key = ''.join(random.choices(string.ascii_uppercase + string.digits, k=25))
-        keys[key] = {"expires": expire, "hwid": None, "used": False}
-        new_keys.append(key)
+        k = ''.join(random.choices(string.ascii_uppercase + string.digits, k=25))
+        db[k] = {"expires": expire, "hwid": None}
+        new_keys.append(k)
 
-    save_json(DB_KEYS, keys)
-    log_event(f"Generated {amount} keys")
+    save_json(DB_KEYS, db)
+    log_event(f"Generated {len(new_keys)} keys")
 
-    return render_template("keys.html", keys=keys, new_keys=new_keys)
+    return render_template("keys.html", keys=db, new_keys=new_keys)
 
 
 @app.route("/deletekey/<key>")
-def delete_key(key):
-    if not require_auth():
-        return redirect("/")
-
-    keys = load_json(DB_KEYS)
-    keys.pop(key, None)
-    save_json(DB_KEYS, keys)
-
+def deletekey(key):
+    if not authed(): return redirect("/")
+    db = load_json(DB_KEYS)
+    db.pop(key, None)
+    save_json(DB_KEYS, db)
     log_event(f"Deleted key {key}")
     return redirect("/keys")
 
 
-# -------------------- BLACKLIST PAGE --------------------
-@app.route("/blacklist")
-def blacklist_page():
-    if not require_auth():
-        return redirect("/")
+# ---------------- BLACKLIST ---------------- #
 
-    black = load_json(DB_BLACKLIST)
-    return render_template("blacklist.html", black=black)
+@app.route("/blacklist")
+def blacklist():
+    if not authed(): return redirect("/")
+    return render_template("blacklist.html", black=load_json(DB_BLACKLIST))
 
 
 @app.route("/addblacklist", methods=["POST"])
 def add_blacklist():
-    if not require_auth():
-        return redirect("/")
-
+    if not authed(): return redirect("/")
     hwid = request.form.get("hwid")
-    black = load_json(DB_BLACKLIST)
-    black[hwid] = True
-    save_json(DB_BLACKLIST, black)
-
-    log_event(f"Blacklisted HWID {hwid}")
+    db = load_json(DB_BLACKLIST)
+    db[hwid] = True
+    save_json(DB_BLACKLIST, db)
+    log_event(f"Blacklisted {hwid}")
     return redirect("/blacklist")
 
 
 @app.route("/removeblacklist/<hwid>")
-def remove_blacklist(hwid):
-    if not require_auth():
-        return redirect("/")
-
-    black = load_json(DB_BLACKLIST)
-    black.pop(hwid, None)
-    save_json(DB_BLACKLIST, black)
-
-    log_event(f"Removed HWID {hwid} from blacklist")
+def remove_black(hwid):
+    if not authed(): return redirect("/")
+    db = load_json(DB_BLACKLIST)
+    db.pop(hwid, None)
+    save_json(DB_BLACKLIST, db)
+    log_event(f"Removed blacklist {hwid}")
     return redirect("/blacklist")
 
 
-# -------------------- LOGS PAGE --------------------
+# ---------------- LOGS ---------------- #
+
 @app.route("/logs")
-def logs_page():
-    if not require_auth():
-        return redirect("/")
-
-    with open(DB_LOGS, "r") as f:
-        logs = f.read()
-
+def logs():
+    if not authed(): return redirect("/")
+    logs = open(DB_LOGS).read()
     return render_template("logs.html", logs=logs)
 
 
-# -------------------- ROBLOX API --------------------
-@app.route("/check", methods=["GET"])
+# ---------------- ROBLOX API ---------------- #
+
+@app.route("/check")
 def check():
     key = request.args.get("key")
     hwid = request.args.get("hwid")
@@ -179,35 +157,32 @@ def check():
         return jsonify({"success": False, "reason": "Blacklisted"})
 
     if key not in keys:
-        return jsonify({"success": False, "reason": "Invalid key"})
+        return jsonify({"success": False, "reason": "Invalid Key"})
 
-    entry = keys[key]
+    data = keys[key]
 
-    if entry["expires"] < time.time():
+    if data["expires"] < time.time():
         return jsonify({"success": False, "reason": "Key expired"})
 
-    if entry["hwid"] is None:
-        entry["hwid"] = hwid
-        entry["used"] = True
-        keys[key] = entry
+    if data["hwid"] is None:
+        data["hwid"] = hwid  
+        keys[key] = data
         save_json(DB_KEYS, keys)
-        log_event(f"WHITELIST AUTO: {key} → HWID {hwid}")
+        log_event(f"Auto-bound key {key} → HWID {hwid}")
 
-    if entry["hwid"] != hwid:
+    if data["hwid"] != hwid:
         return jsonify({"success": False, "reason": "HWID mismatch"})
 
     return jsonify({
         "success": True,
-        "loadstring": "https://raw.githubusercontent.com/FwtysLuas/EclipseMeteor/refs/heads/main/Protected_4548462735082467.lua.txt"
+        "script": f'_G.Key = "{key}"\nloadstring(game:HttpGet("https://raw.githubusercontent.com/FwtysLuas/EclipseMeteor/refs/heads/main/Protected_4548462735082467.lua.txt"))()'
     })
 
 
-# -------------------- RENDER UPTIME CHECK --------------------
 @app.route("/ping")
 def ping():
     return "alive", 200
 
 
-# -------------------- START --------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
