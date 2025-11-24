@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>System Logs</h2>
-<pre>{{ logs }}</pre>
+
+<div class="card">
+    <h2>Logs</h2>
+    <pre style="white-space:pre-wrap;">{{ logs }}</pre>
+</div>
+
 {% endblock %}
