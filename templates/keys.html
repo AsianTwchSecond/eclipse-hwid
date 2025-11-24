@@ -1,36 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-<link rel="stylesheet" href="/static/luarmor.css">
-</head>
-<body>
-<div class="topbar">Keys</div>
+{% extends "layout.html" %}
+{% block content %}
+<h1>Key Management</h1>
 
-<div class="container">
+<div class="card">
+    <form method="post" action="/generate">
+        <label>Days</label>
+        <input type="number" name="days">
 
-<form method="POST" action="/generate">
-    <input class="input" type="number" name="days" placeholder="Days">
-    <input class="input" type="number" name="amount" placeholder="Amount">
-    <button class="btn">Generate</button>
-</form>
+        <label>Amount</label>
+        <input type="number" name="amount">
 
-{% if new_keys %}
-<h3>New Keys:</h3>
-{% for k in new_keys %}
-<p class="key">{{ k }}</p>
-{% endfor %}
-{% endif %}
-
-<hr>
-
-<h3>Existing Keys:</h3>
-{% for k, data in keys.items() %}
-<div class="keybox">
-    <p>{{ k }}</p>
-    <a class="delete" href="/delete/{{ k }}">Delete</a>
+        <button type="submit">Generate</button>
+    </form>
 </div>
-{% endfor %}
 
+<div class="card">
+    <h3>Existing Keys</h3>
+    <table>
+        <tr><th>Key</th><th>Expires</th><th>HWID</th><th></th></tr>
+        {% for key, info in keys.items() %}
+        <tr>
+            <td>{{ key }}</td>
+            <td>{{ info.expires }}</td>
+            <td>{{ info.hwid }}</td>
+            <td><a href="/deletekey/{{key}}">Delete</a></td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
-</body>
-</html>
+{% endblock %}
