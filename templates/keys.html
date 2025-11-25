@@ -19,7 +19,7 @@
 <div class="card">
     <h3>New Keys</h3>
     {% for k in new_keys %}
-        <p>{{ k }}</p>
+    <p>{{ k }}</p>
     {% endfor %}
 </div>
 {% endif %}
@@ -27,18 +27,20 @@
 <div class="card">
     <h2>All Keys</h2>
 
-    <ul style="list-style:none;padding-left:0;">
-        {% for key, data in keys.items() %}
+    <ul style="list-style:none; padding-left:0;">
+        {% for row in keys %}
         <li style="margin-bottom:20px;">
-            <b>Key:</b> {{ key }}<br>
-            <b>Expires:</b> {{ data.expires }}<br>
-            <b>HWID:</b> {{ data.hwid if data.hwid else "None (Not Used Yet)" }}<br><br>
 
-            <button onclick="copyScript('{{ key }}')">Copy Script</button>
+            <b>Key:</b> {{ row.key }}<br>
+            <b>Expires:</b> {{ row.expires }}<br>
+            <b>HWID:</b> {{ row.hwid if row.hwid else "None (Not Used Yet)" }}<br><br>
 
-            <a href="/deletekey/{{ key }}">
-                <button style="background:#ff4c4c;margin-top:10px;">Delete</button>
+            <button onclick="copyScript('{{ row.key }}')">Copy Script</button>
+
+            <a href="/deletekey/{{ row.key }}">
+                <button style="background:#ff4c4c; margin-top:10px;">Delete</button>
             </a>
+
         </li>
         {% endfor %}
     </ul>
