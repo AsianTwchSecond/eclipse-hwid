@@ -1,44 +1,47 @@
-from flask import Flask, render_template, request, redirect, session, jsonify
-import os, json, time
+from flask import Flask, request, render_template, redirect, session
+import psycopg2
+import psycopg2.extras
+import os
+import datetime
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.secret_key = "ECLIPSE_SECRET_KEY"
 
-# Login
+# ────────────────────────────────────────────────
+# CONNECT TO POSTGRES (Render → Environment → DATABASE_URL)
+# ────────────────────────────────────────────────
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+# ────────────────────────────────────────────────
+# CREATE TABLES IF NOT EXISTS
+# ────────────────────────────────────────────────
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS keys (
+    key TEXT PRIMARY KEY,
+    expires DATE,
+    hwid TEXT
+);
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS blacklist (
+    hwid TEXT PRIMARY KEY
+);
+""")
+
+conn.commit()
+
+# ────────────────────────────────────────────────
+# LOGIN SYSTEM
+# ────────────────────────────────────────────────
+
 ADMIN_USER = "EclipseOwner"
 ADMIN_PASS = "Secret123"
-
-# Database folder setup
-if not os.path.exists("database"):
-    os.makedirs("database")
-
-DB_KEYS = "database/keys.json"
-DB_BLACKLIST = "database/blacklist.json"
-DB_LOGS = "database/logs.txt"
-
-# Create files if missing
-for path in [DB_KEYS, DB_BLACKLIST]:
-    if not os.path.exists(path):
-        with open(path, "w") as f:
-            f.write("{}")
-
-if not os.path.exists(DB_LOGS):
-    open(DB_LOGS, "w").close()
-
-# Load/save JSON helpers
-def load_json(path):
-    with open(path, "r") as f:
-        return json.load(f)
-
-def save_json(path, data):
-    with open(path, "w") as f:
-        json.dump(data, f, indent=4)
-
-def log_event(text):
-    with open(DB_LOGS, "a") as f:
-        f.write(f"[{time.ctime()}] {text}\n")
-
-# ---------------- LOGIN ---------------- #
 
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -47,165 +50,109 @@ def login():
         p = request.form.get("password")
 
         if u == ADMIN_USER and p == ADMIN_PASS:
-            session["auth"] = True
+            session["logged"] = True
             return redirect("/dashboard")
-
-        return render_template("login.html", error="Invalid login!")
+        else:
+            return render_template("login.html", error="Invalid Login")
 
     return render_template("login.html")
 
-def require_auth():
-    return session.get("auth", False)
 
-# ---------------- DASHBOARD ---------------- #
+# ────────────────────────────────────────────────
+# DASHBOARD
+# ────────────────────────────────────────────────
 
 @app.route("/dashboard")
 def dashboard():
-    if not require_auth():
+    if "logged" not in session:
         return redirect("/")
     return render_template("dashboard.html")
 
-# ---------------- KEYS PAGE ---------------- #
 
-@app.route("/keys")
+# ────────────────────────────────────────────────
+# KEYS PAGE (LIST + GENERATE + DELETE)
+# ────────────────────────────────────────────────
+
+@app.route("/keys", methods=["GET", "POST"])
 def keys_page():
-    if not require_auth():
+    if "logged" not in session:
         return redirect("/")
 
-    keys = load_json(DB_KEYS)
-    return render_template("keys.html", keys=keys)
-
-@app.route("/generate", methods=["POST"])
-def generate():
-    if not require_auth():
-        return redirect("/")
-
-    days = int(request.form.get("days"))
-    amount = int(request.form.get("amount"))
-    expire = int(time.time()) + days * 86400
-
-    keys = load_json(DB_KEYS)
-
-    import random, string
     new_keys = []
 
-    for _ in range(amount):
-        k = ''.join(random.choices(string.ascii_uppercase + string.digits, k=25))
-        keys[k] = {"expires": expire, "hwid": None}
-        new_keys.append(k)
+    if request.method == "POST":
+        days = int(request.form.get("days"))
+        amount = int(request.form.get("amount"))
 
-    save_json(DB_KEYS, keys)
-    log_event(f"Generated {amount} keys")
+        for _ in range(amount):
+            import secrets
+            k = secrets.token_hex(16).upper()
 
-    return render_template("keys.html", keys=keys, new_keys=new_keys)
+            expire_date = datetime.date.today() + datetime.timedelta(days=days)
 
+            cursor.execute(
+                "INSERT INTO keys (key, expires, hwid) VALUES (%s, %s, %s)",
+                (k, expire_date, None)
+            )
+            conn.commit()
+
+            new_keys.append(k)
+
+    cursor.execute("SELECT * FROM keys")
+    all_keys = cursor.fetchall()
+
+    return render_template("keys.html", keys=all_keys, new_keys=new_keys)
+
+
+# DELETE KEY
 @app.route("/deletekey/<key>")
 def delete_key(key):
-    if not require_auth():
+    if "logged" not in session:
         return redirect("/")
 
-    keys = load_json(DB_KEYS)
-    keys.pop(key, None)
-    save_json(DB_KEYS, keys)
-
-    log_event(f"Deleted key {key}")
+    cursor.execute("DELETE FROM keys WHERE key = %s", (key,))
+    conn.commit()
     return redirect("/keys")
 
-# ---------------- BLACKLIST ---------------- #
 
-@app.route("/blacklist")
-def blacklist_page():
-    if not require_auth():
-        return redirect("/")
+# ────────────────────────────────────────────────
+# API FOR LUA CHECK
+# ────────────────────────────────────────────────
 
-    black = load_json(DB_BLACKLIST)
-    return render_template("blacklist.html", black=black)
-
-@app.route("/addblacklist", methods=["POST"])
-def add_blacklist():
-    if not require_auth():
-        return redirect("/")
-
-    hwid = request.form.get("hwid")
-    black = load_json(DB_BLACKLIST)
-    black[hwid] = True
-    save_json(DB_BLACKLIST, black)
-
-    log_event(f"Blacklisted HWID {hwid}")
-    return redirect("/blacklist")
-
-@app.route("/removeblacklist/<hwid>")
-def remove_blacklist(hwid):
-    if not require_auth():
-        return redirect("/")
-
-    black = load_json(DB_BLACKLIST)
-    black.pop(hwid, None)
-    save_json(DB_BLACKLIST, black)
-
-    log_event(f"Removed HWID {hwid}")
-    return redirect("/blacklist")
-
-# ---------------- LOGS ---------------- #
-
-@app.route("/logs")
-def logs_page():
-    if not require_auth():
-        return redirect("/")
-
-    with open(DB_LOGS, "r") as f:
-        logs = f.read()
-
-    return render_template("logs.html", logs=logs)
-
-# ---------------- ROBLOX API ---------------- #
-
-@app.route("/check", methods=["GET"])
+@app.route("/check")
 def check():
     key = request.args.get("key")
     hwid = request.args.get("hwid")
 
-    keys = load_json(DB_KEYS)
-    black = load_json(DB_BLACKLIST)
+    cursor.execute("SELECT * FROM blacklist WHERE hwid = %s", (hwid,))
+    if cursor.fetchone():
+        return {"success": False, "reason": "Blacklisted"}
 
-    # blacklisted
-    if hwid in black:
-        return jsonify({"success": False, "reason": "Blacklisted"})
+    cursor.execute("SELECT * FROM keys WHERE key = %s", (key,))
+    result = cursor.fetchone()
 
-    # invalid
-    if key not in keys:
-        return jsonify({"success": False, "reason": "Invalid key"})
+    if not result:
+        return {"success": False, "reason": "Invalid Key"}
 
-    entry = keys[key]
+    expire = result["expires"]
 
-    # expired
-    if entry["expires"] < time.time():
-        return jsonify({"success": False, "reason": "Key expired"})
+    if expire < datetime.date.today():
+        return {"success": False, "reason": "Expired"}
 
-    # auto bind
-    if entry["hwid"] is None:
-        entry["hwid"] = hwid
-        keys[key] = entry
-        save_json(DB_KEYS, keys)
-        log_event(f"Bound HWID {hwid} to key {key}")
+    # Bind HWID if first time
+    if result["hwid"] is None:
+        cursor.execute("UPDATE keys SET hwid = %s WHERE key = %s", (hwid, key))
+        conn.commit()
 
-    # mismatch
-    if entry["hwid"] != hwid:
-        return jsonify({"success": False, "reason": "HWID mismatch"})
+    elif result["hwid"] != hwid:
+        return {"success": False, "reason": "HWID Mismatch"}
 
-    # success → load stay.txt
-    return jsonify({
-        "success": True,
-        "loadstring": "https://raw.githubusercontent.com/AsianTwchSecond/Loveu/refs/heads/main/stay.txt"
-    })
+    return {"success": True}
 
-# ---------------- KEEP ALIVE ---------------- #
 
-@app.route("/ping")
-def ping():
-    return "alive", 200
-
-# ---------------- RUN ---------------- #
+# ────────────────────────────────────────────────
+# START SERVER
+# ────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=10000)
