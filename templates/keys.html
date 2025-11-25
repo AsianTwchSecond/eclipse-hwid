@@ -4,7 +4,7 @@
 <div class="card">
     <h2>Generate Keys</h2>
 
-    <form method="POST" action="/keys">
+    <form method="POST" action="/generate">
         <label>Days</label>
         <input type="number" name="days" required>
 
@@ -17,9 +17,9 @@
 
 {% if new_keys %}
 <div class="card">
-    <h3>New Keys Generated</h3>
+    <h3>New Keys</h3>
     {% for k in new_keys %}
-    <p>{{ k }}</p>
+        <p>{{ k }}</p>
     {% endfor %}
 </div>
 {% endif %}
@@ -27,20 +27,18 @@
 <div class="card">
     <h2>All Keys</h2>
 
-    <ul style="list-style:none; padding-left:0;">
-        {% for row in keys %}
+    <ul style="list-style:none;padding-left:0;">
+        {% for key, data in keys.items() %}
         <li style="margin-bottom:20px;">
+            <b>Key:</b> {{ key }}<br>
+            <b>Expires:</b> {{ data.expires }}<br>
+            <b>HWID:</b> {{ data.hwid if data.hwid else "None (Not Used Yet)" }}<br><br>
 
-            <b>Key:</b> {{ row.key }}<br>
-            <b>Expires:</b> {{ row.expires }}<br>
-            <b>HWID:</b> {{ row.hwid if row.hwid else "None (Unused)" }}<br><br>
+            <button onclick="copyScript('{{ key }}')">Copy Script</button>
 
-            <button onclick="copyScript('{{ row.key }}')">Copy Script</button>
-
-            <a href="/deletekey/{{ row.key }}">
-                <button style="background:#ff4c4c; margin-top:10px;">Delete</button>
+            <a href="/deletekey/{{ key }}">
+                <button style="background:#ff4c4c;margin-top:10px;">Delete</button>
             </a>
-
         </li>
         {% endfor %}
     </ul>
@@ -52,7 +50,7 @@ function copyScript(key) {
 loadstring(game:HttpGet("https://raw.githubusercontent.com/FwtysLuas/EclipseMeteor/refs/heads/main/Protected_8387035221277894.lua.txt"))()`;
 
     navigator.clipboard.writeText(script);
-    alert("Copied script!");
+    alert("Copied script with key!");
 }
 </script>
 
